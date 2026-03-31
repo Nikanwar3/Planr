@@ -1,4 +1,4 @@
-# TaskFlow
+# Planr
 
 A minimal task management system built with Python/Flask, React, and SQLite.
 

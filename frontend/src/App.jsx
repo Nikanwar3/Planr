@@ -58,7 +58,7 @@ export default function App() {
   return (
     <div style={styles.root}>
       <header style={styles.header}>
-        <h1 style={styles.logo}>TaskFlow</h1>
+        <h1 style={styles.logo}>Planr</h1>
       </header>
 
       <div style={styles.layout}>
