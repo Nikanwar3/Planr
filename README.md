@@ -19,7 +19,7 @@ pip install -r requirements.txt
 python run.py
 ```
 
-API available at `http://localhost:5000`.
+API available at `http://localhost:5001`.
 
 ### Frontend
 
@@ -29,7 +29,7 @@ npm install
 npm run dev
 ```
 
-App available at `http://localhost:3000`.
+App available at `http://localhost:3000`. Vite proxies `/tasks` and `/projects` to the Flask backend — no CORS configuration needed in development.
 
 ### Tests
 
@@ -37,6 +37,8 @@ App available at `http://localhost:3000`.
 cd backend
 pytest tests/ -v
 ```
+
+Tests run against an in-memory SQLite database so they leave no state behind.
 
 ---
 
@@ -52,7 +54,7 @@ This rule lives in `STATUS_TRANSITIONS` in `models/task.py` and is enforced by `
 
 ### Marshmallow schemas as the validation boundary
 
-All incoming data is validated through marshmallow schemas before reaching the database. Invalid requests return HTTP 422 with field-level error messages in a consistent `{"errors": {field: [messages]}}` shape.
+All incoming data is validated through Marshmallow schemas before reaching the database. Invalid requests return HTTP 422 with field-level error messages in a consistent `{"errors": {field: [messages]}}` shape.
 
 **Why**: schemas give a single place to tighten or relax validation rules. Adding a new field requires updating the schema first — the model and route follow naturally.
 
@@ -62,7 +64,7 @@ SQLite eliminates the need for a running database server during development. Swa
 
 ### Vite proxy
 
-The Vite dev server proxies `/tasks` and `/projects` to the Flask backend so the frontend never hard-codes the backend URL.
+The Vite dev server proxies `/tasks` and `/projects` to the Flask backend so the frontend never hard-codes the backend URL and CORS is not a concern in development.
 
 ---
 
@@ -84,3 +86,24 @@ To add a new feature (e.g. task tags):
 5. Update the React API client and add a tag selector to `TaskForm`
 
 The layered structure (models → schemas → routes) means each step is independent and testable in isolation.
+
+---
+
+## AI Guidance
+
+The file [`agents.md`](./agents.md) contains the constraints used to guide AI contributions to this codebase. Key rules enforced:
+
+- All user input must pass through Marshmallow schemas — no route may write to the database before validation
+- Status transitions are owned by the model layer, never the route
+- No raw SQL — SQLAlchemy ORM only
+- Every new endpoint requires tests covering at least one valid and one invalid case
+- Error responses must use the `{"errors": {field: [messages]}}` shape — no new formats
+
+## AI Usage
+
+Claude Code (claude-sonnet-4-6) was used throughout the build. AI-generated code was reviewed and verified before being accepted:
+
+- The status transition map and `can_transition_to` method were generated then manually verified against the intended lifecycle
+- Marshmallow schema validators (e.g. `due_date_not_in_past`) were tested explicitly via pytest before being accepted
+- The test suite structure was AI-assisted; each test was read and confirmed to assert the right behaviour, not just exercise the endpoint
+- The `agents.md` file was written to constrain future AI contributions to the same patterns established during the initial build

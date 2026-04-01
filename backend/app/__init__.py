@@ -13,7 +13,7 @@ logging.basicConfig(
 
 def create_app(config=None):
     app = Flask(__name__)
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///taskflow.db"
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///planr.db"
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
     if config:
